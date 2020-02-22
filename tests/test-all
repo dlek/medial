@@ -1,0 +1,9 @@
+#!/bin/sh
+# Git apparently always sets the working directory to the root of the
+# workspace, so using relative paths from there is fine.
+
+# linting
+tests/linting/test-all || exit 1
+
+# tests
+pytest -v --cov=mdal --cov-report=term --cov-report=html tests || exit 1
