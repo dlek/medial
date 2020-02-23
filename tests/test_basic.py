@@ -104,7 +104,7 @@ def test_query_tokenization():
 def test_basic_query(dbconn):
 
   res = dbconn.execute("SELECT * FROM products").fetchall()
-  assert len(res) == 1
+  assert len(res) == 2
   assert res[0]['id'] == 1
   assert res[0]['name'] == 'widget'
   assert res[0]['description'] == 'A doohickey'

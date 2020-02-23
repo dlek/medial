@@ -25,7 +25,7 @@ class Persistent():
   """ Subclass initialization functions should call this first in order to set
       up the fields and set defaults.
   """
-  def __init__(self, id=None, persist=True):
+  def __init__(self, id=None, record=None, persist=True):
 
     # on first init, add column lookup dict in class
     # TODO: better way to do this?
@@ -41,6 +41,13 @@ class Persistent():
       super().__setattr__(type(self).key, id)
       self.load()
       self._new = False
+    elif record:
+      # factory load
+      for k in record.keys():
+        # k refers to column from database
+        property = type(self).columns[k]
+        v = record[k]
+        super().__setattr__(property, v)
     else:
       for (property, spec) in type(self).persistence.items():
         if 'default' in spec:
