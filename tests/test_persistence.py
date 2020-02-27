@@ -50,6 +50,15 @@ class Product(mdal.Persistent):
         self.description = description
 
 
+def get_all_partially_realized_products():
+  db = mdal.get_db()
+  res = db.execute("SELECT * FROM products").fetchall()
+  products = []
+  for rec in res:
+    products.append(PartiallyRealizedProduct(record=rec))
+  return products
+
+
 class PartiallyRealizedProduct(mdal.Persistent):
 
   table = 'products'
@@ -80,28 +89,28 @@ class PartiallyRealizedProduct(mdal.Persistent):
 # ---------------------------------------------------------------------------
 
 
-def test_persistence_load(dbconn):
+def test_load(dbconn):
 
   product = Product(1)
   assert product.name == 'widget'
   assert product.description == 'A doohickey'
 
 
-def test_persistence_load_not_found(dbconn):
+def test_load_not_found(dbconn):
 
   with pytest.raises(mdal.exceptions.ObjectNotFound) as e:
     assert Product(5)
   assert str(e.value) == "Could not find record in table 'products' with key 'id' having value '5'"
 
 
-def test_persistence_unrealized_class(dbconn):
+def test_unrealized_class(dbconn):
 
   with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
     assert PartiallyRealizedProduct(1)
   assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
 
 
-def test_persistence_new(dbconn):
+def test_new(dbconn):
 
   product = Product(name='fridget', description='A fridge magnet which is actually a very small fridge')
   product.commit()
@@ -113,7 +122,7 @@ def test_persistence_new(dbconn):
   assert product.id == 3
 
 
-def test_persistence_update(dbconn):
+def test_update(dbconn):
 
   product = Product(1)
   product.description = 'A vibrating doohickey'
@@ -123,9 +132,15 @@ def test_persistence_update(dbconn):
   assert res['description'] == 'A vibrating doohickey'
   assert res['id'] == 1
 
-def test_persistence_factory(dbconn):
+def test_factory(dbconn):
 
   products = get_all_products()
   assert len(products) == 2
   assert products[0].name == 'widget'
   assert products[1].description == 'An inky squishy doohickey'
+
+def test_factory_unrealized_class(dbconn):
+
+  with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
+    assert get_all_partially_realized_products()
+  assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
