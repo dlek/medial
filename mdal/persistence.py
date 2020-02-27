@@ -20,21 +20,26 @@ class Persistent():
       database specs and so include the table name?
   """
   persistence = {}
-  columns = {}
 
   """ Subclass initialization functions should call this first in order to set
       up the fields and set defaults.
   """
   def __init__(self, id=None, record=None, persist=True):
 
+    logging.debug("In Persistent::__init__() for %s with id=%s, persist=%s", type(self), id, persist)
+
     # on first init, add column lookup dict in class
     # TODO: better way to do this?
-    if not type(self).columns:
+    if not hasattr(type(self), '__columns'):
+      type(self).__columns = {}
+      logging.debug("Building columns map for %s", type(self))
       for (property, spec) in type(self).persistence.items():
         column = spec.get('column', property)
-        type(self).columns[column] = property
+        type(self).__columns[column] = property
+    else:
+      for k in type(self).__columns.keys():
+        logging.debug("column %s <=> %s", k, type(self).__columns[k])
 
-    logging.debug("In Persistent::__init__() with id=%s, persist=%s", id, persist)
     self._dirty = {}
     self._persist = persist
     if id:
@@ -45,7 +50,11 @@ class Persistent():
       # factory load
       for k in record.keys():
         # k refers to column from database
-        property = type(self).columns[k]
+        try:
+          property = type(self).__columns[k]
+        except KeyError:
+          logging.error("Could not get property for column %s (schema does not match object definition)", k)
+          raise mdal.exceptions.SchemaMismatch(type(self).table, k)
         v = record[k]
         super().__setattr__(property, v)
     else:
@@ -155,6 +164,9 @@ class Persistent():
     self._dirty.clear()
 
   def load(self, fields=None):
+
+    logging.debug("%s::load()", type(self))
+
     key = type(self).key
     table = type(self).table
     keyval = getattr(self, key)
@@ -173,8 +185,13 @@ class Persistent():
     for name in res.keys():
       if name is not key:
         try:
-          property = type(self).columns[name]
+          logging.debug("Looking up property for column %s for table %s", name, table)
+          property = type(self).__columns[name]
+          logging.debug("Retrieved property for column %s: %s", name, property)
         except KeyError:
           logging.error("Could not get property for column %s (schema does not match object definition)", name)
           raise mdal.exceptions.SchemaMismatch(table, name)
         super().__setattr__(property, res[name])
+
+  def to_dict(self):
+    pass

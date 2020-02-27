@@ -3,7 +3,9 @@
 # Note: it is necessary to disable the "unused-argument" Pylint warning as the
 #       dbconn parameter taken by tests requires the fixture which in turn
 #       initializes the database connection.
+import pytest
 import mdal
+
 
 # ---------------------------------------------------------------------------
 #                                                         PERSISTENT CLASSES
@@ -48,6 +50,31 @@ class Product(mdal.Persistent):
         self.description = description
 
 
+class PartiallyRealizedProduct(mdal.Persistent):
+
+  table = 'products'
+  persistence = {
+    'id': {
+      'type': 'integer',
+      'auto': True
+    },
+    'name': {
+      'type': 'string',
+    }
+  }
+
+  def __init__(self, id=None, name=None, record=None):
+
+    if record:
+      # factory load
+      super().__init__(record=record)
+    else:
+      super().__init__(id)
+
+      if not id:
+        self.name = name
+
+
 # ---------------------------------------------------------------------------
 #                                                                      TESTS
 # ---------------------------------------------------------------------------
@@ -58,6 +85,20 @@ def test_persistence_load(dbconn):
   product = Product(1)
   assert product.name == 'widget'
   assert product.description == 'A doohickey'
+
+
+def test_persistence_load_not_found(dbconn):
+
+  with pytest.raises(mdal.exceptions.ObjectNotFound) as e:
+    assert Product(5)
+  assert str(e.value) == "Could not find record in table 'products' with key 'id' having value '5'"
+
+
+def test_persistence_unrealized_class(dbconn):
+
+  with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
+    assert PartiallyRealizedProduct(1)
+  assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
 
 
 def test_persistence_new(dbconn):
