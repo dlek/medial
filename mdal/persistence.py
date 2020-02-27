@@ -36,9 +36,6 @@ class Persistent():
       for (property, spec) in type(self).persistence.items():
         column = spec.get('column', property)
         type(self).__columns[column] = property
-    else:
-      for k in type(self).__columns.keys():
-        logging.debug("column %s <=> %s", k, type(self).__columns[k])
 
     self._dirty = {}
     self._persist = persist
