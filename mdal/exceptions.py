@@ -40,3 +40,23 @@ class SchemaMismatch(MdalException):
     if self._msg:
       desc += ": " + self._msg
     super().__init__(desc)
+
+
+class Unconfigured(MdalException):
+
+  def __init__(self, msg=None):
+    self._msg = msg
+    desc = "MDAL has not been configured"
+    if self._msg:
+      desc += ": " + self._msg
+    super().__init__(desc)
+
+
+class UnsupportedDatabase(MdalException):
+
+  def __init__(self, scheme, msg=None):
+    self._msg = msg
+    desc = "Database scheme '{}' not supported".format(scheme)
+    if self._msg:
+      desc += ": " + self._msg
+    super().__init__(desc)

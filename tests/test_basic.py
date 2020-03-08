@@ -1,7 +1,32 @@
 # vi: set softtabstop=2 ts=2 sw=2 expandtab:
 # pylint:
 #
+import pytest
+import mdal
 from mdal.db_sqlite import nextqparm
+
+# ---------------------------------------------------------------------------
+#                                        TEST PRIOR TO FIXTURE CONFIGURATION
+#
+# These need to run before any fixtures are used, because the database
+# connection fixture will initialize the connection singleton and the tests
+# won't actually test the misconfigured stuff.
+# ---------------------------------------------------------------------------
+
+def test_missing_uri():
+
+  with pytest.raises(mdal.exceptions.Unconfigured) as e:
+    assert mdal.get_db()
+  assert str(e.value) == "MDAL has not been configured"
+
+
+def test_bad_uri():
+
+  with pytest.raises(mdal.exceptions.UnsupportedDatabase) as e:
+    mdal.configure('https://this.is.not.a.database')
+    assert mdal.get_db()
+  assert str(e.value) == "Database scheme 'https' not supported"
+
 
 # ---------------------------------------------------------------------------
 #                                                                TEST BASICS
