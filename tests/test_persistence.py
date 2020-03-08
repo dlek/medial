@@ -144,3 +144,10 @@ def test_factory_unrealized_class(dbconn):
   with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
     assert get_all_partially_realized_products()
   assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
+
+def test_delete(dbconn):
+
+  Product.delete(1)
+  products = get_all_products()
+  assert len(products) == 1
+  assert products[0].name == 'squidget'

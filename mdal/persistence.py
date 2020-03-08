@@ -21,10 +21,11 @@ class Persistent():
   """
   persistence = {}
 
-  """ Subclass initialization functions should call this first in order to set
-      up the fields and set defaults.
-  """
+
   def __init__(self, id=None, record=None, persist=True):
+    """ Subclass initialization functions should call this first in order to set
+        up the fields and set defaults.
+    """
 
     logging.debug("In Persistent::__init__() for %s with id=%s, persist=%s", type(self), id, persist)
 
@@ -192,3 +193,15 @@ class Persistent():
 
   def to_dict(self):
     pass
+
+
+  @classmethod
+  def delete(cls, id):
+    logging.debug("in Persistent::delete(%s)", id)
+
+    # create query based on what the key is
+    qstr = "DELETE FROM {} WHERE {} = ?".format(cls.table, cls.key)
+
+    db = mdal.get_db()
+    db.execute(qstr, (id,))
+    db.commit()
