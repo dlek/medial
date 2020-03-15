@@ -124,7 +124,7 @@ def open_db_sqlite(uri):
   For SQLite: support the use of lists or tuples in query parameters.
   """
 
-  db = ExtConnection(uri, uri=True)
+  db = ExtConnection(uri, uri=True, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
   db.row_factory = sqlite3.Row
 
   return db
