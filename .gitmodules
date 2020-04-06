@@ -1,0 +1,3 @@
+[submodule "intest"]
+	path = tests/inspection
+	url = ../../dlek/intest.git
