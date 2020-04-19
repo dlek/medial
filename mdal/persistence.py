@@ -192,7 +192,10 @@ class Persistent():
         super().__setattr__(property, res[name])
 
   def to_dict(self):
-    pass
+    return {
+      property: getattr(self, property)
+      for property in type(self).persistence
+    }
 
 
   @classmethod
