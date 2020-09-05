@@ -51,6 +51,7 @@ class Persistent():
         try:
           property = type(self).__columns[k]
         except KeyError:
+          # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", k)
           raise mdal.exceptions.SchemaMismatch(type(self).table, k)
         v = record[k]
@@ -75,6 +76,9 @@ class Persistent():
         validation_fn = property['validation_fn']
         if not validation_fn(value, params=property.get('validation_params', None)):
           raise Exception("invalid value")
+      if property.get('setter_override', None):
+        setter_fn = property['setter_override']
+        value = setter_fn(self, value)
       self._dirty[name] = True
 
     super().__setattr__(name, value)
@@ -121,7 +125,7 @@ class Persistent():
       else:
         self._commit_update(table, params, cols)
     except Exception as e:
-      raise Exception("TODO: Create custom exception for: {}".format(e))
+      raise Exception("TODO: Create custom exception for: {}".format(e)) from e
 
   def _commit_new(self, table, params, cols):
 
@@ -187,6 +191,7 @@ class Persistent():
           property = type(self).__columns[name]
           logging.debug("Retrieved property for column %s: %s", name, property)
         except KeyError:
+          # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", name)
           raise mdal.exceptions.SchemaMismatch(table, name)
         super().__setattr__(property, res[name])
