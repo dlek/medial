@@ -106,6 +106,7 @@ class ExtConnection(sqlite3.Connection):
     try:
       res = sqlite3.Connection.execute(self, sql, parameters or [])
     except sqlite3.IntegrityError as e:
+      # pylint: disable=W0707
       raise ConstraintViolation(str(e))
 
     return res
