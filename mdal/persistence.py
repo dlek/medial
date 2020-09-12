@@ -60,11 +60,12 @@ class Persistent():
       for (property, spec) in type(self).persistence.items():
         if 'default' in spec:
           super().__setattr__(property, spec['default'])
-        self._dirty[property] = False
-      self._new = True
 
-  #def __getattr__(self, name):
-  #  return super().__getattribute__(name)
+          # ensure default is set on new records
+          self._dirty[property] = True
+        else:
+          self._dirty[property] = False
+      self._new = True
 
   def __setattr__(self, name, value):
     if name in type(self).persistence:
