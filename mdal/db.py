@@ -18,11 +18,11 @@ def __open_db(uri):
 
   scheme = uri.split(':', 1)[0]
 
-  if scheme == 'file':
+  if scheme in ['file', 'sqlite']:
     from .db_sqlite import open_db_sqlite
     db = open_db_sqlite(uri)
 
-  elif scheme == 'postgresql':
+  elif scheme in ['postgres', 'postgresql']:
     from .db_postgres import open_db_postgres
     db = open_db_postgres(uri)
 
