@@ -11,20 +11,50 @@ import mdal.exceptions
 # ---------------------------------------------------------------------------
 
 class Persistent():
-
-  """ By default the key used for routine operations is the object's ID.
   """
+  Classes for persistent objects subclass this.
+
+  Properties can be specified using the following fields:
+  * `column`: the name of the table column matching this property.
+  * `default`: the default value of the property.
+  * `readonly`: defaults to `False` and can be used to block _most_ writes to
+    the property.
+  * `validation_fn`: defines a function to validate values.  It is expected to
+    take the form `fn(value, params=None)` where `params` specifies optional
+    parameters used for validation.  This can be used to generalize the
+    function.
+  * `validation_params`: a list of parameters given to the validation
+    function.
+  * `setter_override`: used to define a method which overrides the default
+    behaviour in setting the property.  Expected to take the form
+    `fn(self, value)` and receives the value the caller is attempting to set.
+    The function must return a value which will actually be set.  This could
+    be used to transform the value before setting or perform a side effect.
+
+  Attributes:
+    key (str): The object's primary key.  Default: the object's ID.
+    persistence (dict): Persistent properties and their specifications; see
+      above for description of properties.
+  """
+
+  # class attributes
   key = 'id'
-
-  """ Persistence dict specifies the fields, should maybe be more general
-      database specs and so include the table name?
-  """
   persistence = {}
 
-
   def __init__(self, id=None, record=None, persist=True):
-    """ Subclass initialization functions should call this first in order to set
-        up the fields and set defaults.
+    """
+    Initialize a persistent object.
+
+    Args:
+      id (any): The object's primary key, used for lookups.
+      record (dict): Values for describing a complete object.  This would be
+        used when selecting multiple rows from a table and creating objects
+        from the results, an operation referred to here as a "factory load".
+      persist (bool): Whether object should be written to the database on
+        updates.  Defaults to `True`.
+
+    Note: Subclass initialization functions should call this first in order to
+      set up the properties and set defaults.
     """
 
     logging.debug("In Persistent::__init__() for %s with id=%s, persist=%s", type(self), id, persist)
@@ -85,6 +115,16 @@ class Persistent():
     super().__setattr__(name, value)
 
   def duplicate(self, skip=None):
+    """
+    Duplicate an object, skipping over the object's key.  The duplicate is not
+    persisted automaticallly.
+
+    Args:
+      skip (list): Properties to skip when duplicating, apart from the key,
+        which is always skipped.
+
+    Returns: the duplicate object.
+    """
 
     if not skip:
       skip = []
@@ -106,6 +146,10 @@ class Persistent():
     return dupe
 
   def commit(self):
+    """
+    Persist updates to the object: commit them to the database.  This method
+    only writes updated properties.
+    """
 
     if not self._persist:
       logging.error("Should not call commit() on object you don't want to persist")
@@ -166,7 +210,13 @@ class Persistent():
     # clean up
     self._dirty.clear()
 
-  def load(self, fields=None):
+  def load(self, properties=None):
+    """
+    Fulfill an object by loading its data from the database.
+
+    Args:
+      properties (list): List of properties to load from the table.
+    """
 
     logging.debug("%s::load()", type(self))
 
@@ -174,12 +224,12 @@ class Persistent():
     table = type(self).table
     keyval = getattr(self, key)
 
-    if fields:
-      qstr = "SELECT {} FROM {} WHERE {}=?".format(", ".join(fields), table, key)
+    if properties:
+      qstr = "SELECT {} FROM {} WHERE {}=?".format(", ".join(properties), table, key)
     else:
       qstr = "SELECT * FROM {} WHERE {}=?".format(table, key)
     logging.debug("About to load from database: %s", qstr)
-    print("<class Persistent>.load({}): {}".format(fields, qstr))
+    print("<class Persistent>.load({}): {}".format(properties, qstr))
 
     db = mdal.get_db()
     res = db.execute(qstr, (keyval,)).fetchone()
@@ -206,6 +256,12 @@ class Persistent():
 
   @classmethod
   def delete(cls, id):
+    """
+    Delete an object's record from the database.
+
+    Args:
+      id (any): The object's key.
+    """
     logging.debug("in Persistent::delete(%s)", id)
 
     # create query based on what the key is

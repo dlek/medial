@@ -3,6 +3,10 @@
 #
 
 class MdalException(Exception):
+  """
+  Base exception class for the library.  All exceptions raised by the library
+  use this as a base class.
+  """
 
   def __init__(self, description):
     self._description = description
@@ -12,10 +16,14 @@ class MdalException(Exception):
     return self._description
 
 class ConstraintViolation(MdalException):
-  pass
-
+  """
+  Raised when an SQL statement violates schema constraints or validations.
+  """
 
 class ObjectNotFound(MdalException):
+  """
+  Raised when an object is not found in the table.
+  """
 
   def __init__(self, table, key, value, msg=None):
     self._table = table
@@ -30,6 +38,11 @@ class ObjectNotFound(MdalException):
 
 
 class SchemaMismatch(MdalException):
+  """
+  Raised when an object's definition of persistence does not match the schema
+  in the database, such as when a persistent property is referenced that does
+  not have a matching column in the corresponding table.
+  """
 
   def __init__(self, table, column, msg=None):
     self._table = table
@@ -43,6 +56,10 @@ class SchemaMismatch(MdalException):
 
 
 class Unconfigured(MdalException):
+  """
+  Raised when mdal is used without initial configuration, i.e., by issuing
+  `mdal.configure()`.
+  """
 
   def __init__(self, msg=None):
     self._msg = msg
@@ -53,6 +70,9 @@ class Unconfigured(MdalException):
 
 
 class UnsupportedDatabase(MdalException):
+  """
+  Raised when attempting to use an unsupported database system.
+  """
 
   def __init__(self, scheme, msg=None):
     self._msg = msg

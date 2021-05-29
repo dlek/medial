@@ -9,12 +9,10 @@ __dbconn = None
 __uri = None
 
 
+# Open database connection for appropriate database type based on URI and
+# return the connection handle.
 # pylint: disable=import-outside-toplevel
 def __open_db(uri):
-  """
-  Open database connection for appropriate database type based on URI and
-  return the connection handle.
-  """
 
   scheme = uri.split(':', 1)[0]
 
@@ -33,11 +31,25 @@ def __open_db(uri):
 
 
 def configure(uri):
+  """
+  Configure mdal for use.
+
+  Arguments:
+    uri (string): URI for database, of the form
+      `scheme://user:password@host/dbname`.
+  """
+
   global __uri
   __uri = uri
 
 
 def get_db():
+  """
+  Get database connection, creating if necessary.
+
+  Returns: Database connection.
+  """
+
   global __uri, __dbconn
 
   if not __dbconn:
@@ -48,6 +60,10 @@ def get_db():
 
 
 def close(e=None):
+  """
+  Close database connection.
+  """
+
   global __dbconn
 
   if e:
@@ -59,6 +75,12 @@ def close(e=None):
 
 
 def get_last_id():
+  """
+  Get ID of last row inserted.
+
+  Returns: ID of last row inserted.
+  """
+
   db = get_db()
   id = None
   if db.type == 'sqlite':
