@@ -132,6 +132,22 @@ def test_update(dbconn):
   assert res['description'] == 'A vibrating doohickey'
   assert res['id'] == 1
 
+def test_unnecessary_update_returns_no_updated_columns(dbconn):
+
+  product = Product(1)
+  product.description = 'A doohickey'
+  changed = product.commit()
+
+  assert len(changed) == 0
+
+def test_update_returns_updated_columns(dbconn):
+
+  product = Product(1)
+  product.description = 'A vibrating doohickey'
+  changed = product.commit()
+
+  assert changed == ['description']
+
 def test_factory(dbconn):
 
   products = get_all_products()
