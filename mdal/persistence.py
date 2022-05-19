@@ -1,7 +1,6 @@
 # vi: set softtabstop=2 ts=2 sw=2 expandtab:
 # pylint:
 #
-import sys
 import logging
 import mdal
 import mdal.exceptions
@@ -101,7 +100,9 @@ class Persistent():
     if name in type(self).persistence:
       property = type(self).persistence[name]
       if property.get('readonly', False):
-        print("I am calling from: {}".format(sys._getframe().f_back.f_code.co_name))
+        # TODO: something else than a print statement
+        #print("I am calling from: {}".format(sys._getframe().f_back.f_code.co_name))
+        pass
         # TODO: raise AttributeError or whatnot
       if property.get('validation_fn', None):
         validation_fn = property['validation_fn']
@@ -170,12 +171,13 @@ class Persistent():
       else:
         self._commit_update(table, params, cols)
     except Exception as e:
-      raise Exception("TODO: Create custom exception for: {}".format(e)) from e
+      raise Exception(f"TODO: Create custom exception for: {e}") from e
 
   def _commit_new(self, table, params, cols):
 
-    str1 = ", ".join(['?'] * len(params))
-    qstr = "INSERT INTO {} ({}) VALUES ({})".format(table, ", ".join(cols), str1)
+    value_placeholders = ", ".join(['?'] * len(params))
+    columns = ", ".join(cols)
+    qstr = f"INSERT INTO {table} ({columns}) VALUES ({value_placeholders})"
 
     # commit insert to database
     logging.debug("Committing to database: %s (params %s)", qstr, params)
@@ -198,7 +200,7 @@ class Persistent():
 
     str1 = ", ".join([el + " = ?" for el in cols])
     key = type(self).key
-    qstr = "UPDATE {} SET {} WHERE {}=?".format(table, str1, key)
+    qstr = f"UPDATE {table} SET {str1} WHERE {key}=?"
     params.append(getattr(self, key))
 
     # commit updates to database
@@ -225,11 +227,11 @@ class Persistent():
     keyval = getattr(self, key)
 
     if properties:
-      qstr = "SELECT {} FROM {} WHERE {}=?".format(", ".join(properties), table, key)
+      queryterms = ", ".join(properties)
+      qstr = f"SELECT {queryterms} FROM {table} WHERE {key}=?"
     else:
-      qstr = "SELECT * FROM {} WHERE {}=?".format(table, key)
+      qstr = f"SELECT * FROM {table} WHERE {key}=?"
     logging.debug("About to load from database: %s", qstr)
-    print("<class Persistent>.load({}): {}".format(properties, qstr))
 
     db = mdal.get_db()
     res = db.execute(qstr, (keyval,)).fetchone()
@@ -265,7 +267,7 @@ class Persistent():
     logging.debug("in Persistent::delete(%s)", id)
 
     # create query based on what the key is
-    qstr = "DELETE FROM {} WHERE {} = ?".format(cls.table, cls.key)
+    qstr = f"DELETE FROM {cls.table} WHERE {cls.key} = ?"
 
     db = mdal.get_db()
     db.execute(qstr, (id,))

@@ -30,8 +30,8 @@ class ObjectNotFound(MdalException):
     self._key = key
     self._value = value
     self._msg = msg
-    desc = "Could not find record in table '{}' with key '{}' having value '{}'".format(
-      self._table, self._key, self._value)
+    desc = f"Could not find record in table '{self._table}' with" \
+      f" key '{self._key}' having value '{self._value}'"
     if self._msg:
       desc += ": " + self._msg
     super().__init__(desc)
@@ -48,8 +48,8 @@ class SchemaMismatch(MdalException):
     self._table = table
     self._column = column
     self._msg = msg
-    desc = "Schema mismatch for table '{}' on column '{}'--no matching property".format(
-      self._table, self._column)
+    desc = f"Schema mismatch for table '{self._table}' on column" \
+      f" '{self._column}'--no matching property"
     if self._msg:
       desc += ": " + self._msg
     super().__init__(desc)
@@ -76,7 +76,7 @@ class UnsupportedDatabase(MdalException):
 
   def __init__(self, scheme, msg=None):
     self._msg = msg
-    desc = "Database scheme '{}' not supported".format(scheme)
+    desc = f"Database scheme '{scheme}' not supported"
     if self._msg:
       desc += ": " + self._msg
     super().__init__(desc)

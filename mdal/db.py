@@ -50,7 +50,7 @@ def get_db():
   Returns: Database connection.
   """
 
-  global __uri, __dbconn
+  global __dbconn
 
   if not __dbconn:
     if not __uri:
