@@ -111,7 +111,14 @@ class Persistent():
       if property.get('setter_override', None):
         setter_fn = property['setter_override']
         value = setter_fn(self, value)
-      self._dirty[name] = True
+
+      # check if we're actually updating
+      # could use hasattr() but this is implemented with a try-except anyway
+      try:
+        if getattr(self, name) != value:
+          self._dirty[name] = True
+      except AttributeError:
+        self._dirty[name] = True
 
     super().__setattr__(name, value)
 
@@ -150,16 +157,18 @@ class Persistent():
     """
     Persist updates to the object: commit them to the database.  This method
     only writes updated properties.
+
+    Returns: List of updated items
     """
 
     if not self._persist:
-      logging.error("Should not call commit() on object you don't want to persist")
-      return
+      # TODO: should throw MDAL exception
+      raise Exception("Should not call commit() on un-persisted object")
 
     # determine whether there are any updates
     dirty = [el for (el, d) in self._dirty.items() if d]
     if not dirty:
-      return
+      return []
 
     table = type(self).table
     params = [getattr(self, el) for el in dirty]
@@ -170,8 +179,12 @@ class Persistent():
         self._commit_new(table, params, cols)
       else:
         self._commit_update(table, params, cols)
+    except mdal.exceptions.MdalException as e:
+      raise e
     except Exception as e:
-      raise Exception(f"TODO: Create custom exception for: {e}") from e
+      raise Exception(f"Unrecognized exception: {e}") from e
+
+    return dirty
 
   def _commit_new(self, table, params, cols):
 
