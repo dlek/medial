@@ -135,6 +135,24 @@ def test_update(dbconn):
   assert res['description'] == 'A vibrating doohickey'
   assert res['id'] == 1
 
+def test_update_with_implicit_type_conversion(dbconn):
+  product = Product(1)
+  product.model_no = '9000'
+  product.commit()
+
+  res = dbconn.execute("SELECT * FROM products WHERE name='widget'").fetchone()
+  assert res['model_no'] == 9000
+  assert res['id'] == 1
+
+def test_update_to_empty_field(dbconn):
+  product = Product(2)
+  product.model_no = 2001
+  product.commit()
+
+  res = dbconn.execute("SELECT * FROM products WHERE name='squidget'").fetchone()
+  assert res['model_no'] == 2001
+  assert res['id'] == 2
+
 def test_unnecessary_update_returns_no_updated_columns(dbconn):
 
   product = Product(1)

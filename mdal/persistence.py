@@ -120,7 +120,7 @@ class Persistent():
         # first fix the type if necessary: we make the type of the updated
         # value consistent with the type of the existing value, since the
         # database library has already made the appropriate determination.
-        if not isinstance(value, type(existing)):
+        if existing is not None and not isinstance(value, type(existing)):
           value = type(existing)(value)
 
         # mark as dirty
