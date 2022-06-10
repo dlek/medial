@@ -1,5 +1,6 @@
 CREATE TABLE products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name VARCHAR(32),
-  description TEXT
+  description TEXT,
+  model_no INTEGER
 );

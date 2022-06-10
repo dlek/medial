@@ -115,9 +115,20 @@ class Persistent():
       # check if we're actually updating
       # could use hasattr() but this is implemented with a try-except anyway
       try:
-        if getattr(self, name) != value:
+        existing = getattr(self, name)
+
+        # first fix the type if necessary: we make the type of the updated
+        # value consistent with the type of the existing value, since the
+        # database library has already made the appropriate determination.
+        if not isinstance(value, type(existing)):
+          value = type(existing)(value)
+
+        # mark as dirty
+        if existing != value:
           self._dirty[name] = True
+
       except AttributeError:
+        # creating new value so it's dirty by trivial case
         self._dirty[name] = True
 
     super().__setattr__(name, value)

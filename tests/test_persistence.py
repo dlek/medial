@@ -34,10 +34,12 @@ class Product(mdal.Persistent):
     },
     'description': {
       'type': 'string',
+    },
+    'model_no': {
     }
   }
 
-  def __init__(self, id=None, name=None, description=None, record=None):
+  def __init__(self, id=None, name=None, description=None, model_no=None, record=None):
 
     if record:
       # factory load
@@ -48,6 +50,7 @@ class Product(mdal.Persistent):
       if not id:
         self.name = name
         self.description = description
+        self.model_no = model_no
 
 
 def get_all_partially_realized_products():
@@ -136,6 +139,16 @@ def test_unnecessary_update_returns_no_updated_columns(dbconn):
 
   product = Product(1)
   product.description = 'A doohickey'
+  changed = product.commit()
+
+  assert len(changed) == 0
+
+def test_unnecessary_update_returns_no_updated_columns_non_string(dbconn):
+  # If the update is provided as a string (such as from web forms), let the
+  # database handle the type determination on commit, and trust the Python type
+  # setting when loading
+  product = Product(1)
+  product.model_no = '2000'
   changed = product.commit()
 
   assert len(changed) == 0

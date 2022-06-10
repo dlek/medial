@@ -1,3 +1,3 @@
-INSERT INTO products (name, description) VALUES ('widget', 'A doohickey');
-INSERT INTO products (name, description) VALUES ('squidget', 'An inky squishy doohickey');
+INSERT INTO products (name, description, model_no) VALUES ('widget', 'A doohickey', 2000);
+INSERT INTO products (name, description, model_no) VALUES ('squidget', 'An inky squishy doohickey', 2001);
 
