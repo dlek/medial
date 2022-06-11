@@ -100,14 +100,11 @@ class Persistent():
     if name in type(self).persistence:
       property = type(self).persistence[name]
       if property.get('readonly', False):
-        # TODO: something else than a print statement
-        #print("I am calling from: {}".format(sys._getframe().f_back.f_code.co_name))
-        pass
-        # TODO: raise AttributeError or whatnot
+        raise mdal.exceptions.SettingReadOnly(name)
       if property.get('validation_fn', None):
         validation_fn = property['validation_fn']
         if not validation_fn(value, params=property.get('validation_params', None)):
-          raise Exception("invalid value")
+          raise mdal.exceptions.InvalidValue(name, value)
       if property.get('setter_override', None):
         setter_fn = property['setter_override']
         value = setter_fn(self, value)
@@ -173,8 +170,7 @@ class Persistent():
     """
 
     if not self._persist:
-      # TODO: should throw MDAL exception
-      raise Exception("Should not call commit() on un-persisted object")
+      raise mdal.exceptions.PersistNonPersistent(self._id)
 
     # determine whether there are any updates
     dirty = [el for (el, d) in self._dirty.items() if d]

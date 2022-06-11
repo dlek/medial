@@ -20,6 +20,35 @@ class ConstraintViolation(MdalException):
   Raised when an SQL statement violates schema constraints or validations.
   """
 
+class PersistNonPersistent(MdalException):
+  """
+  Raised when a persistence method (such as commit()) is called on an object
+  marked as non-persistent.
+  """
+  def __init__(self, id):
+    self._id = id
+    desc = f"Attempting to persist object marked non-persistent: '{self._id}'"
+    super().__init__(desc)
+
+class SettingReadOnly(MdalException):
+  """
+  Raised when setting a read-only attribute is attempted.
+  """
+  def __init__(self, name):
+    self._name = name
+    desc = f"Attempting to set read-only attribute '{self._name}'"
+    super().__init__(desc)
+
+class InvalidValue(MdalException):
+  """
+  Raised when an attribute's validation fails.
+  """
+  def __init__(self, name, value):
+    self._name = name
+    self._value = value
+    desc = f"Validation failed for '{self._name}' with value '{self._value}'"
+    super().__init__(desc)
+
 class ObjectNotFound(MdalException):
   """
   Raised when an object is not found in the table.
