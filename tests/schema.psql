@@ -3,5 +3,6 @@ CREATE TABLE products (
   id SERIAL,
   name VARCHAR(32),
   description TEXT,
-  model_no INTEGER
+  model_no INTEGER,
+  colour VARCHAR(32)
 );

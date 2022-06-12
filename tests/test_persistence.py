@@ -36,7 +36,10 @@ class Product(mdal.Persistent):
       'type': 'string',
     },
     'model_no': {
-    }
+    },
+    'colour': {
+      'default': 'grey',
+    },
   }
 
   def __init__(self, id=None, name=None, description=None, model_no=None, record=None):
@@ -91,13 +94,11 @@ class PartiallyRealizedProduct(mdal.Persistent):
 #                                                                      TESTS
 # ---------------------------------------------------------------------------
 
-
 def test_load(dbconn):
 
   product = Product(1)
   assert product.name == 'widget'
   assert product.description == 'A doohickey'
-
 
 def test_load_not_found(dbconn):
 
@@ -105,13 +106,11 @@ def test_load_not_found(dbconn):
     assert Product(5)
   assert str(e.value) == "Could not find record in table 'products' with key 'id' having value '5'"
 
-
 def test_unrealized_class(dbconn):
 
   with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
     assert PartiallyRealizedProduct(1)
   assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
-
 
 def test_new(dbconn):
 
@@ -122,8 +121,8 @@ def test_new(dbconn):
   assert len(res) == 1
   assert res[0]['description'] == 'A fridge magnet which is actually a very small fridge'
   assert res[0]['id'] == product.id
+  assert res[0]['colour'] == 'grey'
   assert product.id == 3
-
 
 def test_update(dbconn):
 
