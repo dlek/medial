@@ -124,6 +124,16 @@ def test_new(dbconn):
   assert res[0]['colour'] == 'grey'
   assert product.id == 3
 
+def test_duplicate(dbconn):
+
+  original = Product(1)
+  product = original.duplicate()
+  product.commit()
+
+  res = dbconn.execute("SELECT * FROM products WHERE name='widget' AND id != 1").fetchone()
+  assert res['description'] == 'A doohickey'
+  assert res['id'] == 3
+
 def test_update(dbconn):
 
   product = Product(1)
