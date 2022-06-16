@@ -161,6 +161,13 @@ class Persistent():
 
     return dupe
 
+  @property
+  def dirty(self):
+    """
+    Returns list of updated attributes.
+    """
+    return [el for (el, d) in self._dirty.items() if d]
+
   def commit(self):
     """
     Persist updates to the object: commit them to the database.  This method
@@ -173,7 +180,7 @@ class Persistent():
       raise mdal.exceptions.PersistNonPersistent(self._id)
 
     # determine whether there are any updates
-    dirty = [el for (el, d) in self._dirty.items() if d]
+    dirty = self.dirty
     if not dirty:
       return []
 

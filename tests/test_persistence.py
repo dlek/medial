@@ -134,11 +134,25 @@ def test_duplicate(dbconn):
   assert res['description'] == 'A doohickey'
   assert res['id'] == 3
 
+def test_dirty(dbconn):
+
+  product = Product(1)
+  assert product.dirty == []
+  product.description = 'A vibrating doohickey'
+  assert product.dirty == ['description']
+  updates = product.commit()
+  assert updates == ['description']
+
+  res = dbconn.execute("SELECT * FROM products WHERE name='widget'").fetchone()
+  assert res['description'] == 'A vibrating doohickey'
+  assert res['id'] == 1
+
 def test_update(dbconn):
 
   product = Product(1)
   product.description = 'A vibrating doohickey'
-  product.commit()
+  updates = product.commit()
+  assert updates == ['description']
 
   res = dbconn.execute("SELECT * FROM products WHERE name='widget'").fetchone()
   assert res['description'] == 'A vibrating doohickey'
