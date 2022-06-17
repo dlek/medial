@@ -1,4 +1,5 @@
 **/*.swp
+DEVLOG.md
 .lintcache
 
 .venv/
