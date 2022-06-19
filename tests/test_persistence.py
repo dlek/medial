@@ -3,6 +3,7 @@
 # Note: it is necessary to disable the "unused-argument" Pylint warning as the
 #       dbconn parameter taken by tests requires the fixture which in turn
 #       initializes the database connection.
+from enum import Enum
 import pytest
 import mdal
 
@@ -21,39 +22,49 @@ def get_all_products():
   return products
 
 
+class Colour(Enum):
+  grey = 'GRY'
+  orange = 'ORG'
+  black = 'BLK'
+  blue = 'BLU'
+  red = 'RED'
+  yellow = 'YLW'
+  white = 'WHT'
+  brown = 'BRN'
+
 class Product(mdal.Persistent):
 
   table = 'products'
   persistence = {
     'id': {
-      'type': 'integer',
       'auto': True
     },
     'name': {
-      'type': 'string',
     },
     'description': {
-      'type': 'string',
     },
     'model_no': {
     },
     'colour': {
-      'default': 'grey',
+      'type': Colour,
+      'default': Colour.grey,
     },
   }
 
-  def __init__(self, id=None, name=None, description=None, model_no=None, record=None):
+  def __init__(self, id=None, name=None, description=None, model_no=None,
+      colour=None, record=None):
 
     if record:
       # factory load
       super().__init__(record=record)
     else:
       super().__init__(id)
-
       if not id:
         self.name = name
         self.description = description
         self.model_no = model_no
+        if colour is not None:
+          self.colour = colour
 
 
 def get_all_partially_realized_products():
@@ -70,11 +81,9 @@ class PartiallyRealizedProduct(mdal.Persistent):
   table = 'products'
   persistence = {
     'id': {
-      'type': 'integer',
       'auto': True
     },
     'name': {
-      'type': 'string',
     }
   }
 
@@ -121,18 +130,96 @@ def test_new(dbconn):
   assert len(res) == 1
   assert res[0]['description'] == 'A fridge magnet which is actually a very small fridge'
   assert res[0]['id'] == product.id
-  assert res[0]['colour'] == 'grey'
   assert product.id == 3
 
-def test_duplicate(dbconn):
+def test_new_with_default(dbconn):
 
-  original = Product(1)
-  product = original.duplicate()
+  product = Product(name='fridget', description='A fridge magnet which is actually a very small fridge')
   product.commit()
 
-  res = dbconn.execute("SELECT * FROM products WHERE name='widget' AND id != 1").fetchone()
-  assert res['description'] == 'A doohickey'
-  assert res['id'] == 3
+  res = dbconn.execute("SELECT * FROM products WHERE name='fridget'").fetchall()
+  assert len(res) == 1
+  assert res[0]['description'] == 'A fridge magnet which is actually a very small fridge'
+  assert res[0]['id'] == product.id
+  assert res[0]['colour'] == 'GRY'
+  assert product.id == 3
+
+class TestDuplicate:
+  @staticmethod
+  def test_duplicate(dbconn):
+
+    original = Product(1)
+    product = original.duplicate()
+    product.commit()
+
+    res = dbconn.execute("SELECT * FROM products WHERE name='widget' AND id != 1").fetchone()
+    assert res['description'] == 'A doohickey'
+    assert res['id'] == 3
+
+  @staticmethod
+  def test_duplicate_retrieval(dbconn):
+
+    product = Product(3)
+    assert product is not None
+    assert product.description == 'A doohickey'
+
+    res = dbconn.execute("SELECT * FROM products WHERE id = 3").fetchone()
+    assert res['description'] == 'A doohickey'
+
+class TestEnum:
+
+  @staticmethod
+  def test_enum_blank(dbconn):
+    # Here we test that a row loaded from the table with NULL for product
+    # colour remains None, rather than getting assigned the default.
+
+    product = Product(1)
+    assert product is not None
+    assert product.colour is None
+
+    res = dbconn.execute("SELECT * FROM products WHERE id = 1").fetchone()
+    assert res['colour'] is None
+
+  @staticmethod
+  def test_enum_retrieval(dbconn):
+
+    product = Product(2)
+    assert product is not None
+    assert product.colour == Colour.black
+
+    res = dbconn.execute("SELECT * FROM products WHERE id = 2").fetchone()
+    assert res['colour'] == 'BLK'
+
+  @staticmethod
+  def test_enum_update(dbconn):
+
+    product = Product(1)
+    product.colour = Colour.yellow
+    product.commit()
+
+    res = dbconn.execute("SELECT * FROM products WHERE id = 1").fetchone()
+    assert res['colour'] == 'YLW'
+
+  @staticmethod
+  def test_enum_default(dbconn):
+
+    product = Product(name='didget', description='A number-counting doohickey')
+    product.commit()
+
+    res = dbconn.execute("SELECT * FROM productS WHERE name = 'didget'").fetchone()
+    assert res['colour'] == 'GRY'
+
+  @staticmethod
+  def test_dictify(dbconn):
+    product = Product(1)
+    prodict = product.to_dict()
+    assert prodict == {
+      'colour': 'yellow',
+      'id': 1,
+      'name': 'widget',
+      'description': 'A doohickey',
+      'model_no': 2000
+    }
 
 def test_dirty(dbconn):
 
