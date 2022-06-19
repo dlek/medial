@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.4.1 (2022-06-19) Packaging updates and other meta
+
 ## v0.4 (2022-06-18) Support enumerations and improve update/type checking
 
 * In most cases trust type set when retrieving values from database, and have
@@ -20,7 +22,6 @@ Also, housekeeping:
 * Update for latest pylint
 
 ## v0.2.1 (2021-05-29) Update documentation
-
 
 ## v0.2 (2020-09-15) New features and improvements
 
