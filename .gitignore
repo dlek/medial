@@ -1,11 +1,16 @@
+# development artifacts
 **/*.swp
 DEVLOG.md
 .lintcache
-
 .venv/
-
 *.pyc
 __pycache__/
+
+# testing artifacts
 .pytest_cache/
 .coverage
 htmlcov/
+
+# build artifacts
+dist/
+*.egg-info/
