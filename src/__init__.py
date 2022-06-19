@@ -55,6 +55,10 @@ except mdal.exceptions.ObjectNotFound:
 I hope you enjoyed this example.  I tried to make it super fun.
 """
 
+from . import exceptions
+from . import db
+from . import persistence
+
 from .db import configure, close, get_db, get_last_id
 from .persistence import Persistent
 

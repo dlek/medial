@@ -2,8 +2,8 @@
 # pylint:
 #
 import pytest
-import mdal
-from mdal.db_sqlite import nextqparm
+import src as mdal
+from src.db_sqlite import nextqparm
 
 # ---------------------------------------------------------------------------
 #                                        TEST PRIOR TO FIXTURE CONFIGURATION

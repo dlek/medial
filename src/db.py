@@ -2,8 +2,7 @@
 # pylint: disable=global-statement
 #
 import logging
-import mdal.exceptions
-
+from . import exceptions
 
 __dbconn = None
 __uri = None
@@ -25,7 +24,7 @@ def __open_db(uri):
     db = open_db_postgres(uri)
 
   else:
-    raise mdal.exceptions.UnsupportedDatabase(scheme)
+    raise exceptions.UnsupportedDatabase(scheme)
 
   return db
 
@@ -54,7 +53,7 @@ def get_db():
 
   if not __dbconn:
     if not __uri:
-      raise mdal.exceptions.Unconfigured()
+      raise exceptions.Unconfigured()
     __dbconn = __open_db(__uri)
   return __dbconn
 
@@ -88,7 +87,7 @@ def get_last_id():
   elif db.type == 'postgres':
     id = db.execute("SELECT lastval()").fetchone()['lastval']
   else:
-    raise mdal.exceptions.UnsupportedDatabase(db.type)
+    raise exceptions.UnsupportedDatabase(db.type)
   return id
 
 

@@ -3,8 +3,8 @@
 #
 from enum import Enum
 import logging
-import mdal
-import mdal.exceptions
+from .db import get_db, get_last_id
+from . import exceptions
 
 # ---------------------------------------------------------------------------
 #                                                          persistent class
@@ -85,7 +85,7 @@ class Persistent():
         except KeyError:
           # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", k)
-          raise mdal.exceptions.SchemaMismatch(type(self).table, k)
+          raise exceptions.SchemaMismatch(type(self).table, k)
         v = record[k]
         super().__setattr__(property, v)
     else:
@@ -103,11 +103,11 @@ class Persistent():
     if name in type(self).persistence:
       property = type(self).persistence[name]
       if property.get('readonly', False):
-        raise mdal.exceptions.SettingReadOnly(name)
+        raise exceptions.SettingReadOnly(name)
       if property.get('validation_fn', None):
         validation_fn = property['validation_fn']
         if not validation_fn(value, params=property.get('validation_params', None)):
-          raise mdal.exceptions.InvalidValue(name, value)
+          raise exceptions.InvalidValue(name, value)
       if property.get('setter_override', None):
         setter_fn = property['setter_override']
         value = setter_fn(self, value)
@@ -181,7 +181,7 @@ class Persistent():
     """
 
     if not self._persist:
-      raise mdal.exceptions.PersistNonPersistent(self._id)
+      raise exceptions.PersistNonPersistent(self._id)
 
     # determine whether there are any updates
     dirty = self.dirty
@@ -197,7 +197,7 @@ class Persistent():
         self._commit_new(table, params, cols)
       else:
         self._commit_update(table, params, cols)
-    except mdal.exceptions.MdalException as e:
+    except exceptions.MdalException as e:
       raise e
     except Exception as e:
       raise Exception(f"Unrecognized exception: {e}") from e
@@ -212,7 +212,7 @@ class Persistent():
 
     # commit insert to database
     logging.debug("Committing to database: %s (params %s)", qstr, params)
-    db = mdal.get_db()
+    db = get_db()
     db.execute(qstr, params)
     db.commit()
 
@@ -220,7 +220,7 @@ class Persistent():
     id_attr_spec = type(self).persistence.get('id', None)
     if id_attr_spec and id_attr_spec.get('auto', False):
       # retrieve from database
-      self.id = mdal.get_last_id()
+      self.id = get_last_id()
       logging.debug("ID of newly inserted record: %s", self.id)
 
     # clean up
@@ -236,7 +236,7 @@ class Persistent():
 
     # commit updates to database
     logging.debug("Committing to database: %s (params %s)", qstr, params)
-    db = mdal.get_db()
+    db = get_db()
     db.execute(qstr, params)
     db.commit()
 
@@ -264,10 +264,10 @@ class Persistent():
       qstr = f"SELECT * FROM {table} WHERE {key}=?"
     logging.debug("About to load from database: %s", qstr)
 
-    db = mdal.get_db()
+    db = get_db()
     res = db.execute(qstr, (keyval,)).fetchone()
     if not res:
-      raise mdal.exceptions.ObjectNotFound(table, key, keyval)
+      raise exceptions.ObjectNotFound(table, key, keyval)
     for name in res.keys():
       if name is not key:
         try:
@@ -277,7 +277,7 @@ class Persistent():
         except KeyError:
           # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", name)
-          raise mdal.exceptions.SchemaMismatch(table, name)
+          raise exceptions.SchemaMismatch(table, name)
         if res[name] is not None:
           terp = type(self).persistence[property].get('type')
           if terp and issubclass(terp, Enum):
@@ -322,6 +322,6 @@ class Persistent():
     # create query based on what the key is
     qstr = f"DELETE FROM {cls.table} WHERE {cls.key} = ?"
 
-    db = mdal.get_db()
+    db = get_db()
     db.execute(qstr, (id,))
     db.commit()

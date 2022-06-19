@@ -6,8 +6,7 @@ import logging
 import tempfile
 
 import pytest
-import mdal
-
+import src as mdal
 
 # SQLite parameters
 (sqlite_fh, sqlite_fn) = tempfile.mkstemp()
