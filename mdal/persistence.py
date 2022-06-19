@@ -1,6 +1,7 @@
 # vi: set softtabstop=2 ts=2 sw=2 expandtab:
 # pylint:
 #
+from enum import Enum
 import logging
 import mdal
 import mdal.exceptions
@@ -14,6 +15,8 @@ class Persistent():
   Classes for persistent objects subclass this.
 
   Properties can be specified using the following fields:
+  * `type`: the class of attribute.  Generally this is not used except to
+    reference an Enum or another Persistent class.
   * `column`: the name of the table column matching this property.
   * `default`: the default value of the property.
   * `readonly`: defaults to `False` and can be used to block _most_ writes to
@@ -114,11 +117,12 @@ class Persistent():
       try:
         existing = getattr(self, name)
 
-        # first fix the type if necessary: we make the type of the updated
-        # value consistent with the type of the existing value, since the
-        # database library has already made the appropriate determination.
-        if existing is not None and not isinstance(value, type(existing)):
-          value = type(existing)(value)
+        if value is not None:
+          # first fix the type if necessary: we make the type of the updated
+          # value consistent with the type of the existing value, since the
+          # database library has already made the appropriate determination.
+          if existing is not None and not isinstance(value, type(existing)):
+            value = type(existing)(value)
 
         # mark as dirty
         if existing != value:
@@ -185,7 +189,7 @@ class Persistent():
       return []
 
     table = type(self).table
-    params = [getattr(self, el) for el in dirty]
+    params = [self._storable(el) for el in dirty]
     cols = [type(self).persistence[el].get('column', el) for el in dirty]
 
     try:
@@ -228,7 +232,7 @@ class Persistent():
     str1 = ", ".join([el + " = ?" for el in cols])
     key = type(self).key
     qstr = f"UPDATE {table} SET {str1} WHERE {key}=?"
-    params.append(getattr(self, key))
+    params.append(self._storable(key))
 
     # commit updates to database
     logging.debug("Committing to database: %s (params %s)", qstr, params)
@@ -274,14 +278,36 @@ class Persistent():
           # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", name)
           raise mdal.exceptions.SchemaMismatch(table, name)
+        if res[name] is not None:
+          terp = type(self).persistence[property].get('type')
+          if terp and issubclass(terp, Enum):
+            super().__setattr__(property, terp(res[name]))
+            continue
         super().__setattr__(property, res[name])
+
+  def _dictable(self, property):
+    """
+    Returns dict-friendly representation of value.
+    """
+    val = getattr(self, property)
+    if isinstance(val, Enum):
+      return val.name
+    return val
+
+  def _storable(self, property):
+    """
+    Returns database-friendly representation of value.
+    """
+    val = getattr(self, property)
+    if isinstance(val, Enum):
+      return val.value
+    return val
 
   def to_dict(self):
     return {
-      property: getattr(self, property)
+      property: self._dictable(property)
       for property in type(self).persistence
     }
-
 
   @classmethod
   def delete(cls, id):
