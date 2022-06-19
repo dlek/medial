@@ -30,8 +30,8 @@ $(PACKAGES): $(SOURCES)
 	@echo Version: $(VERSION)
 	@python3 -m build
 
-publish-test: $(PACKAGES) checkversion
+publish-test: $(PACKAGES) release checkversion
 	@python3 -m twine upload --repository testpypi $(PACKAGES)
 
-publish: $(PACKAGES) checkversion
+publish: $(PACKAGES) release checkversion
 	@python3 -m twine upload --repository pypi $(PACKAGES)
