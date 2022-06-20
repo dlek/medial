@@ -197,7 +197,7 @@ class Persistent():
         self._commit_new(table, params, cols)
       else:
         self._commit_update(table, params, cols)
-    except exceptions.MdalException as e:
+    except exceptions.MedialException as e:
       raise e
     except Exception as e:
       raise Exception(f"Unrecognized exception: {e}") from e

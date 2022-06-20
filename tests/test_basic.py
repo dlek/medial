@@ -2,7 +2,7 @@
 # pylint:
 #
 import pytest
-import src as mdal
+import src as medial
 from src.db_sqlite import nextqparm
 
 # ---------------------------------------------------------------------------
@@ -15,16 +15,16 @@ from src.db_sqlite import nextqparm
 
 def test_missing_uri():
 
-  with pytest.raises(mdal.exceptions.Unconfigured) as e:
-    assert mdal.get_db()
-  assert str(e.value) == "MDAL has not been configured"
+  with pytest.raises(medial.exceptions.Unconfigured) as e:
+    assert medial.get_db()
+  assert str(e.value) == "Medial has not been configured"
 
 
 def test_bad_uri():
 
-  with pytest.raises(mdal.exceptions.UnsupportedDatabase) as e:
-    mdal.configure('https://this.is.not.a.database')
-    assert mdal.get_db()
+  with pytest.raises(medial.exceptions.UnsupportedDatabase) as e:
+    medial.configure('https://this.is.not.a.database')
+    assert medial.get_db()
   assert str(e.value) == "Database scheme 'https' not supported"
 
 

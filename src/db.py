@@ -31,7 +31,7 @@ def __open_db(uri):
 
 def configure(uri):
   """
-  Configure mdal for use.
+  Configure Medial for use.
 
   Arguments:
     uri (string): URI for database, of the form

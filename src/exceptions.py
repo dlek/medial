@@ -2,7 +2,7 @@
 # pylint:
 #
 
-class MdalException(Exception):
+class MedialException(Exception):
   """
   Base exception class for the library.  All exceptions raised by the library
   use this as a base class.
@@ -15,12 +15,12 @@ class MdalException(Exception):
   def __str__(self):
     return self._description
 
-class ConstraintViolation(MdalException):
+class ConstraintViolation(MedialException):
   """
   Raised when an SQL statement violates schema constraints or validations.
   """
 
-class PersistNonPersistent(MdalException):
+class PersistNonPersistent(MedialException):
   """
   Raised when a persistence method (such as commit()) is called on an object
   marked as non-persistent.
@@ -30,7 +30,7 @@ class PersistNonPersistent(MdalException):
     desc = f"Attempting to persist object marked non-persistent: '{self._id}'"
     super().__init__(desc)
 
-class SettingReadOnly(MdalException):
+class SettingReadOnly(MedialException):
   """
   Raised when setting a read-only attribute is attempted.
   """
@@ -39,7 +39,7 @@ class SettingReadOnly(MdalException):
     desc = f"Attempting to set read-only attribute '{self._name}'"
     super().__init__(desc)
 
-class InvalidValue(MdalException):
+class InvalidValue(MedialException):
   """
   Raised when an attribute's validation fails.
   """
@@ -49,7 +49,7 @@ class InvalidValue(MdalException):
     desc = f"Validation failed for '{self._name}' with value '{self._value}'"
     super().__init__(desc)
 
-class ObjectNotFound(MdalException):
+class ObjectNotFound(MedialException):
   """
   Raised when an object is not found in the table.
   """
@@ -66,7 +66,7 @@ class ObjectNotFound(MdalException):
     super().__init__(desc)
 
 
-class SchemaMismatch(MdalException):
+class SchemaMismatch(MedialException):
   """
   Raised when an object's definition of persistence does not match the schema
   in the database, such as when a persistent property is referenced that does
@@ -84,21 +84,21 @@ class SchemaMismatch(MdalException):
     super().__init__(desc)
 
 
-class Unconfigured(MdalException):
+class Unconfigured(MedialException):
   """
-  Raised when mdal is used without initial configuration, i.e., by issuing
-  `mdal.configure()`.
+  Raised when Medial is used without initial configuration, i.e., by issuing
+  `medial.configure()`.
   """
 
   def __init__(self, msg=None):
     self._msg = msg
-    desc = "MDAL has not been configured"
+    desc = "Medial has not been configured"
     if self._msg:
       desc += ": " + self._msg
     super().__init__(desc)
 
 
-class UnsupportedDatabase(MdalException):
+class UnsupportedDatabase(MedialException):
   """
   Raised when attempting to use an unsupported database system.
   """

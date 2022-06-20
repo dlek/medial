@@ -6,7 +6,7 @@ import logging
 import tempfile
 
 import pytest
-import src as mdal
+import src as medial
 
 # SQLite parameters
 (sqlite_fh, sqlite_fn) = tempfile.mkstemp()
@@ -30,8 +30,8 @@ pgsql_params = {
 @pytest.fixture(scope='class', params=[sqlite_params, pgsql_params], ids=['sqlite', 'pgsql'])
 def dbconn(request):
 
-  mdal.configure(request.param['uri'])
-  db = mdal.get_db()
+  medial.configure(request.param['uri'])
+  db = medial.get_db()
 
   try:
     # clear existing tables if necessary
@@ -56,7 +56,7 @@ def dbconn(request):
 
   yield db
 
-  mdal.close()
+  medial.close()
 
   if request.param.get('delete_afterwards') and request.param.get('filename'):
     os.unlink(request.param['filename'])

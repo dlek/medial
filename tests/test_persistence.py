@@ -5,7 +5,7 @@
 #       initializes the database connection.
 from enum import Enum
 import pytest
-import src as mdal
+import src as medial
 
 
 # ---------------------------------------------------------------------------
@@ -14,7 +14,7 @@ import src as mdal
 
 
 def get_all_products():
-  db = mdal.get_db()
+  db = medial.get_db()
   res = db.execute("SELECT * FROM products").fetchall()
   products = []
   for rec in res:
@@ -32,7 +32,7 @@ class Colour(Enum):
   white = 'WHT'
   brown = 'BRN'
 
-class Product(mdal.Persistent):
+class Product(medial.Persistent):
 
   table = 'products'
   persistence = {
@@ -68,7 +68,7 @@ class Product(mdal.Persistent):
 
 
 def get_all_partially_realized_products():
-  db = mdal.get_db()
+  db = medial.get_db()
   res = db.execute("SELECT * FROM products").fetchall()
   products = []
   for rec in res:
@@ -76,7 +76,7 @@ def get_all_partially_realized_products():
   return products
 
 
-class PartiallyRealizedProduct(mdal.Persistent):
+class PartiallyRealizedProduct(medial.Persistent):
 
   table = 'products'
   persistence = {
@@ -111,13 +111,13 @@ def test_load(dbconn):
 
 def test_load_not_found(dbconn):
 
-  with pytest.raises(mdal.exceptions.ObjectNotFound) as e:
+  with pytest.raises(medial.exceptions.ObjectNotFound) as e:
     assert Product(5)
   assert str(e.value) == "Could not find record in table 'products' with key 'id' having value '5'"
 
 def test_unrealized_class(dbconn):
 
-  with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
+  with pytest.raises(medial.exceptions.SchemaMismatch) as e:
     assert PartiallyRealizedProduct(1)
   assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
 
@@ -298,7 +298,7 @@ def test_factory(dbconn):
 
 def test_factory_unrealized_class(dbconn):
 
-  with pytest.raises(mdal.exceptions.SchemaMismatch) as e:
+  with pytest.raises(medial.exceptions.SchemaMismatch) as e:
     assert get_all_partially_realized_products()
   assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
 
