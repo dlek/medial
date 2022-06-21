@@ -70,12 +70,12 @@ class Persistent():
         column = spec.get('column', property)
         type(self).__columns[column] = property
 
+    self._new = False
     self._dirty = {}
     self._persist = persist
     if id:
       super().__setattr__(type(self).key, id)
       self.load()
-      self._new = False
     elif record:
       # factory load
       for k in record.keys():

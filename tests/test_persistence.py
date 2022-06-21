@@ -296,6 +296,17 @@ def test_factory(dbconn):
   assert products[0].name == 'widget'
   assert products[1].description == 'An inky squishy doohickey'
 
+def test_factory_update(dbconn):
+
+  products = get_all_products()
+  products[0].name = 'uidget'
+  changed = products[0].commit()
+  assert changed == ['name']
+
+  product = Product(1)
+  assert product.name == 'uidget'
+  assert product.description == 'A doohickey'
+
 def test_factory_unrealized_class(dbconn):
 
   with pytest.raises(medial.exceptions.SchemaMismatch) as e:
