@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.4.2 (2022-06-21) Update/rewrite documentation
+## v0.4.2, v0.4.3 (2022-06-21) Update/rewrite documentation
 
 Also complete renaming from mdal to medial
 
