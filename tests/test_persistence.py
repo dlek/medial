@@ -5,7 +5,7 @@
 #       initializes the database connection.
 from enum import Enum
 import pytest
-import src as medial
+import medial
 
 
 # ---------------------------------------------------------------------------

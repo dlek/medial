@@ -6,7 +6,7 @@ import logging
 import tempfile
 
 import pytest
-import src as medial
+import medial
 
 # SQLite parameters
 (sqlite_fh, sqlite_fn) = tempfile.mkstemp()

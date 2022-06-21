@@ -2,8 +2,8 @@
 # pylint:
 #
 import pytest
-import src as medial
-from src.db_sqlite import nextqparm
+import medial
+from medial.db_sqlite import nextqparm
 
 # ---------------------------------------------------------------------------
 #                                        TEST PRIOR TO FIXTURE CONFIGURATION

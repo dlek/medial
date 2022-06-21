@@ -1,5 +1,5 @@
 CHANGELOG	:= CHANGELOG.md
-SOURCES		:= src/*.py
+SOURCES		:= medial/*.py
 VERSION		:= $(shell git describe --tags | sed -e 's/^v//' -e 's/-/+/' -e 's/-/./g')
 PACKAGES	:= dist/medial-$(VERSION)-py3-none-any.whl dist/medial-$(VERSION).tar.gz
 
@@ -26,15 +26,15 @@ checkversion:
 	@echo "Checking that $(VERSION) is in setup.cfg"
 	@grep -qw "$(VERSION)" setup.cfg
 
-$(PACKAGES): $(SOURCES)
+$(PACKAGES): $(SOURCES) setup.cfg setup.py
 	@echo Version: $(VERSION)
 	@python3 -m build
 
-docs/medial.md: src dev/pdoc/text.mako
-	@pdoc3 --template-dir=dev/pdoc src > $@
+docs/medial.md: medial dev/pdoc/text.mako
+	@pdoc3 --template-dir=dev/pdoc medial > $@
 
-docs/%.md: src/*.py dev/pdoc/text.mako
-	@pdoc3 --template-dir=dev/pdoc src.$* > $@
+docs/%.md: medial/*.py dev/pdoc/text.mako
+	@pdoc3 --template-dir=dev/pdoc medial.$* > $@
 
 docs:	docs/medial.md docs/persistence.md docs/exceptions.md docs/db.md
 
