@@ -1,7 +1,4 @@
-# vi: set softtabstop=2 ts=2 sw=2 expandtab:
-# pylint:
-"""
-medial - A minimal database assistance library
+# medial - A minimal database assistance library
 
 Medial is not an abstraction layer to magically make your classes persistent.
 It merely tries to alleviate some of the tedium, hopefully not by adding more
@@ -110,14 +107,12 @@ A longer string represented with `VARCHAR` or even `TEXT` is also possible.
 
 This is not yet implemented.
 
-"""
+## Module
 
-from . import exceptions
-from . import db
-from . import persistence
-
-from .db import configure, close, get_db, get_last_id
-from .persistence import Persistent
-
-# we don't import exceptions here because it's clearer if they're explicitly
-# addressed
+### Submodules
+    
+* `[db](docs/db.md)`
+    
+* `[persistence](docs/persistence.md)`
+    
+* `[exceptions](docs/exceptions.md)`

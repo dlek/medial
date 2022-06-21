@@ -30,8 +30,16 @@ $(PACKAGES): $(SOURCES)
 	@echo Version: $(VERSION)
 	@python3 -m build
 
+docs/medial.md: src dev/pdoc/text.mako
+	@pdoc3 --template-dir=dev/pdoc src > $@
+
+docs/%.md: src/*.py dev/pdoc/text.mako
+	@pdoc3 --template-dir=dev/pdoc src.$* > $@
+
+docs:	docs/medial.md docs/persistence.md docs/exceptions.md docs/db.md
+
 publish-test: $(PACKAGES) release checkversion
-	@python3 -m twine upload --repository testpypi $(PACKAGES)
+	@python3 -m twine upload --repository medial-test $(PACKAGES)
 
 publish: $(PACKAGES) release checkversion
-	@python3 -m twine upload --repository pypi $(PACKAGES)
+	@python3 -m twine upload --repository medial $(PACKAGES)
