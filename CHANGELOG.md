@@ -1,6 +1,11 @@
 # Changelog
 
+## v0.4.2 (2022-06-21) Update/rewrite documentation
+
+Also complete renaming from mdal to medial
+
 ## v0.4.1 (2022-06-19) Packaging updates and other meta
+
 
 ## v0.4 (2022-06-18) Support enumerations and improve update/type checking
 
@@ -22,6 +27,7 @@ Also, housekeeping:
 * Update for latest pylint
 
 ## v0.2.1 (2021-05-29) Update documentation
+
 
 ## v0.2 (2020-09-15) New features and improvements
 
