@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.4 (2022-06-21) Fix packaging issues
+
+* Rename src/ back to medial/ as that becomes the module name (facepalm)
+* Require psycopg2-binary package
+
 ## v0.4.2, v0.4.3 (2022-06-21) Update/rewrite documentation
 
 Also complete renaming from mdal to medial
