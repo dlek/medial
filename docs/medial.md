@@ -111,8 +111,8 @@ This is not yet implemented.
 
 ### Submodules
     
-* `[db](docs/db.md)`
+* [`db`](docs/db.md)
     
-* `[persistence](docs/persistence.md)`
+* [`persistence`](docs/persistence.md)
     
-* `[exceptions](docs/exceptions.md)`
+* [`exceptions`](docs/exceptions.md)
