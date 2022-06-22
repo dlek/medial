@@ -43,6 +43,18 @@ class Persistent():
   key = 'id'
   persistence = {}
 
+  def _safeset(self, property, value):
+    """
+    Safely sets property values according to their type.
+    """
+
+    if value is not None:
+      terp = type(self).persistence[property].get('type')
+      if terp and issubclass(terp, Enum):
+        super().__setattr__(property, terp(value))
+        return
+    super().__setattr__(property, value)
+
   def __init__(self, id=None, record=None, persist=True):
     """
     Initialize a persistent object.
@@ -77,8 +89,10 @@ class Persistent():
       super().__setattr__(type(self).key, id)
       self.load()
     elif record:
+
       # factory load
       for k in record.keys():
+
         # k refers to column from database
         try:
           property = type(self).__columns[k]
@@ -86,17 +100,23 @@ class Persistent():
           # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", k)
           raise exceptions.SchemaMismatch(type(self).table, k)
-        v = record[k]
-        super().__setattr__(property, v)
+
+        self._safeset(property, record[k])
     else:
       for (property, spec) in type(self).persistence.items():
         if 'default' in spec:
-          super().__setattr__(property, spec['default'])
+
+          # setting the property value mindful of type is not strictly
+          # necessary here, because the default is declared using the
+          # Python-native value.  With other complex types, careful handling
+          # might be required.
+          self._safeset(property, spec['default'])
 
           # ensure default is set on new records
           self._dirty[property] = True
         else:
           self._dirty[property] = False
+
       self._new = True
 
   def __setattr__(self, name, value):
@@ -271,19 +291,12 @@ class Persistent():
     for name in res.keys():
       if name is not key:
         try:
-          logging.debug("Looking up property for column %s for table %s", name, table)
           property = type(self).__columns[name]
-          logging.debug("Retrieved property for column %s: %s", name, property)
         except KeyError:
           # pylint: disable=W0707
           logging.error("Could not get property for column %s (schema does not match object definition)", name)
           raise exceptions.SchemaMismatch(table, name)
-        if res[name] is not None:
-          terp = type(self).persistence[property].get('type')
-          if terp and issubclass(terp, Enum):
-            super().__setattr__(property, terp(res[name]))
-            continue
-        super().__setattr__(property, res[name])
+        self._safeset(property, res[name])
 
   def _dictable(self, property):
     """

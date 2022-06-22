@@ -169,7 +169,7 @@ class TestDuplicate:
 class TestEnum:
 
   @staticmethod
-  def test_enum_blank(dbconn):
+  def test_blank(dbconn):
     # Here we test that a row loaded from the table with NULL for product
     # colour remains None, rather than getting assigned the default.
 
@@ -181,7 +181,7 @@ class TestEnum:
     assert res['colour'] is None
 
   @staticmethod
-  def test_enum_retrieval(dbconn):
+  def test_retrieval(dbconn):
 
     product = Product(2)
     assert product is not None
@@ -191,7 +191,17 @@ class TestEnum:
     assert res['colour'] == 'BLK'
 
   @staticmethod
-  def test_enum_update(dbconn):
+  def test_factory(dbconn):
+
+    products = get_all_products()
+    assert len(products) == 2
+    assert products[0].name == 'widget'
+    assert products[0].colour is None
+    assert products[1].name == 'squidget'
+    assert products[1].colour is Colour.black
+
+  @staticmethod
+  def test_update(dbconn):
 
     product = Product(1)
     product.colour = Colour.yellow
@@ -201,7 +211,7 @@ class TestEnum:
     assert res['colour'] == 'YLW'
 
   @staticmethod
-  def test_enum_default(dbconn):
+  def test_default(dbconn):
 
     product = Product(name='didget', description='A number-counting doohickey')
     product.commit()
