@@ -32,6 +32,17 @@ class Colour(Enum):
   white = 'WHT'
   brown = 'BRN'
 
+
+# simple validation function
+def check_model_no(model_no, params):
+  # TODO: document that since type hasn't been cast by the database,
+  # validation functions must make the conversion themselves if necessary
+
+  # TODO: check the following
+  # pylint: disable=chained-comparison
+  return model_no is None or int(model_no) >= 1000 and int(model_no) < 10000
+
+
 class Product(medial.Persistent):
 
   table = 'products'
@@ -44,11 +55,12 @@ class Product(medial.Persistent):
     'description': {
     },
     'model_no': {
+      'validation_fn': check_model_no
     },
     'colour': {
       'type': Colour,
       'default': Colour.grey,
-    },
+    }
   }
 
   def __init__(self, id=None, name=None, description=None, model_no=None,
@@ -149,10 +161,11 @@ class TestDuplicate:
   def test_duplicate(dbconn):
 
     original = Product(1)
-    product = original.duplicate()
+    product = original.duplicate(skip=['model_no'])
     product.commit()
 
     res = dbconn.execute("SELECT * FROM products WHERE name='widget' AND id != 1").fetchone()
+    assert res['model_no'] is None
     assert res['description'] == 'A doohickey'
     assert res['id'] == 3
 
@@ -322,6 +335,12 @@ def test_factory_unrealized_class(dbconn):
   with pytest.raises(medial.exceptions.SchemaMismatch) as e:
     assert get_all_partially_realized_products()
   assert str(e.value) == "Schema mismatch for table 'products' on column 'description'--no matching property"
+
+def test_validation_on_update_failure(dbconn):
+  product = Product(1)
+  with pytest.raises(medial.exceptions.InvalidValue) as e:
+    product.model_no = 10000
+  assert str(e.value) == "Validation failed for 'model_no' with value '10000'"
 
 def test_delete(dbconn):
 
