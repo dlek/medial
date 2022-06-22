@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.6 (2022-06-21) Fix enums in factory-loaded objects
+
+* Removed some old, unused code
+
 ## v0.4.5 (2022-06-21) Fix updating factory-loaded objects
 
 ## v0.4.4 (2022-06-21) Fix packaging issues
