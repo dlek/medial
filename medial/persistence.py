@@ -70,14 +70,10 @@ class Persistent():
     Note: Subclass initialization functions should call this first in order to
       set up the properties and set defaults.
     """
-
-    logging.debug("In Persistent::__init__() for %s with id=%s, persist=%s", type(self), id, persist)
-
     # on first init, add column lookup dict in class
     # TODO: better way to do this?
     if not hasattr(type(self), '__columns'):
       type(self).__columns = {}
-      logging.debug("Building columns map for %s", type(self))
       for (property, spec) in type(self).persistence.items():
         column = spec.get('column', property)
         type(self).__columns[column] = property
@@ -231,7 +227,6 @@ class Persistent():
     qstr = f"INSERT INTO {table} ({columns}) VALUES ({value_placeholders})"
 
     # commit insert to database
-    logging.debug("Committing to database: %s (params %s)", qstr, params)
     db = get_db()
     db.execute(qstr, params)
     db.commit()
@@ -241,7 +236,6 @@ class Persistent():
     if id_attr_spec and id_attr_spec.get('auto', False):
       # retrieve from database
       self.id = get_last_id()
-      logging.debug("ID of newly inserted record: %s", self.id)
 
     # clean up
     self._dirty.clear()
@@ -255,7 +249,6 @@ class Persistent():
     params.append(self._storable(key))
 
     # commit updates to database
-    logging.debug("Committing to database: %s (params %s)", qstr, params)
     db = get_db()
     db.execute(qstr, params)
     db.commit()
@@ -271,8 +264,6 @@ class Persistent():
       properties (list): List of properties to load from the table.
     """
 
-    logging.debug("%s::load()", type(self))
-
     key = type(self).key
     table = type(self).table
     keyval = getattr(self, key)
@@ -282,7 +273,6 @@ class Persistent():
       qstr = f"SELECT {queryterms} FROM {table} WHERE {key}=?"
     else:
       qstr = f"SELECT * FROM {table} WHERE {key}=?"
-    logging.debug("About to load from database: %s", qstr)
 
     db = get_db()
     res = db.execute(qstr, (keyval,)).fetchone()
@@ -330,8 +320,6 @@ class Persistent():
     Args:
       id (any): The object's key.
     """
-    logging.debug("in Persistent::delete(%s)", id)
-
     # create query based on what the key is
     qstr = f"DELETE FROM {cls.table} WHERE {cls.key} = ?"
 
