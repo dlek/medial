@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.4.5 (2022-06-21) Fix updating factory-loaded objects
+
 ## v0.4.4 (2022-06-21) Fix packaging issues
 
 * Rename src/ back to medial/ as that becomes the module name (facepalm)
