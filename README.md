@@ -7,14 +7,24 @@ tedium or new complexity.
 Knowledge of SQL is still necessary, as well as the specific flavour(s) used.
 Medial currently supports SQLite and Postgres.
 
-[API documentation](docs/medial.md) is available.
+[Usage documentation](https://medial.readthedocs.io/en/latest) is available.
+
+## Current features
+
+* Support for SQLite and Postgres
+* Python enumerations
+* Validation and setter override functions
 
 ## Example usage
+
+The following example defines a persistent class, configures Medial to use
+SQLite, and looks up an object of that class by its ID, creating it if it does
+not already exist.
 
 ```
 import medial
 
-class Thing(Persistent):
+class Thing(medial.Persistent):
 
   table = 'things'
   key = 'name'
@@ -49,18 +59,14 @@ except medial.exceptions.ObjectNotFound:
   t.commit()
 ```
 
+I hope you enjoyed this example.  I tried to make it super fun.
+
 ## Status
 
 Medial is in active development.  Due to its minimal design, features you may
 expect (relations, for example) are easily implemented with regular SQL, but
 if/when new features are introduced (relations, for example), existing code
 will almost certainly continue to work.
-
-### Current features
-
-* SQLite and Postgres
-* Python enumerations
-* Validation and setter override functions
 
 ### Planned features
 

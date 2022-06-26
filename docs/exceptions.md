@@ -1,9 +1,6 @@
-# 
+# Exceptions
 
-[[_TOC_]]
-
-## Classes
-    
+[TOC]
 
 ###  ConstraintViolation
 

@@ -1,6 +1,9 @@
-# 
+# Persistence
 
-[[_TOC_]]
+This is a top-level exposed module and its members can be accessed directly
+from Medial, i.e. `medial.Persistent`.
+
+[TOC]
 
 ## Classes
     
@@ -15,6 +18,7 @@
 Classes for persistent objects subclass this.
 
 Properties can be specified using the following fields:
+
 * `type`: the class of attribute.  Generally this is not used except to
   reference an Enum or another Persistent class.
 * `column`: the name of the table column matching this property.
@@ -82,7 +86,10 @@ persisted automaticallly.
 
 **Arguments**
 
-* **`Returns`**: the duplicate object.
+`skip`: A list of attributes to skip, in addition to the key, which is never
+duplicated.
+
+Returns: the duplicate object.
   
 
   

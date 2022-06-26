@@ -1,13 +1,13 @@
-# 
+# DB
 
-[[_TOC_]]
+Provides database initialization and connection access.
 
-## Module
+This is a top-level exposed module and its members can be accessed directly
+from Medial, i.e. `medial.close()`.
+
+[TOC]
 
 ### Functions
-
-  
-
 ---
 
 ####  <code>close(e=None)</code>
